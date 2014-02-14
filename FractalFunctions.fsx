@@ -21,7 +21,7 @@ let colourStep startColour endColour numSteps =
      (blue endColour - blue startColour)/numSteps)
 
 // Create a form to display the graphics
-let formWidth, formHeight = 800, 650         
+let formWidth, formHeight = 1000, 800         
 let form = new Form(Width = formWidth, Height = formHeight)
 let box = new PictureBox(BackColor = Color.White, Dock = DockStyle.Fill)
 let image = new Bitmap(formWidth, formHeight)
