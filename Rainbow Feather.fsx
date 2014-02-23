@@ -10,10 +10,10 @@ let numBranches = 5
 
 let asColour x y factor =
     let centredX = abs ((imageCentre - startWidth/2.0) - x)
-    int ((centredX+y)/factor%255.0)
+    abs (int (((centredX+y)*factor)%510.0) - 255)
 
 let getColour x y =
-    (asColour x y 0.5,asColour x y 1.0,asColour x y 1.5)
+    (asColour x y 2.0,asColour x y 1.5,asColour x y 2.5)
 
 let rec endpoints x y angle length iteration = seq {
     let segLength = length/float numBranches

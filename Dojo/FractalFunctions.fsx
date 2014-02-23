@@ -5,15 +5,14 @@
 open System
 open System.Drawing
 open System.Windows.Forms
+open System.Windows
+open System.Threading
 
 let red (r, _, _) = r
 let green (_, g, _) = g
 let blue (_, _, b) = b
 
-let startColour = (60,30,0) // brown
-let endColour = (0,170,0)
-
-let brush colour = new SolidBrush(Color.FromArgb(colour |> red, colour |> green, colour |> blue))
+let private brush colour = new SolidBrush(Color.FromArgb(colour |> red, colour |> green, colour |> blue))
     
 let colourStep startColour endColour numSteps = 
     ((red endColour - red startColour)/numSteps, 
@@ -32,13 +31,14 @@ let imageCentre = float formWidth/2.0
 box.Image <- image
 form.Controls.Add(box) 
 
+/// Tells you where a line starting at x,y with the specified angle in radians will end
 let endpoint x y angle length =
     x + length * cos angle,
     y + length * sin angle
 
-let flip y = (float)formHeight - y
+let private flip y = (float)formHeight - y
 
-let drawLine (target : Graphics) (brush : Brush) 
+let private drawLine (target : Graphics) (brush : Brush) 
              (x : float) (y : float) 
              (angle : float) (length : float) (width : float) =
     let x_end, y_end = endpoint x y angle length
@@ -46,17 +46,19 @@ let drawLine (target : Graphics) (brush : Brush)
     let destination = new PointF((single)x_end, (single)(y_end |> flip))
     let pen = new Pen(brush, (single)width)
     target.DrawLine(pen, origin, destination)
+    form.Refresh()
 
-let drawCircle (target : Graphics) (brush : Brush) 
+let private drawCircle (target : Graphics) (brush : Brush) 
              (x : float) (y : float) 
              (radius : int) =
     target.FillEllipse(brush, (int x-radius), int (flip y)-radius, radius*2, radius*2)
 
-let drawRectangle (target : Graphics) (brush : Brush) 
+let private drawRectangle (target : Graphics) (brush : Brush) 
              (x : float) (y : float) 
              (width : int) (height : int) =
     target.FillRectangle(brush, int x, int y, width, int height)
 
+/// Draws a line starting at x,y with the specified angle in radians
 let line x y angle length width colour = 
     drawLine graphics (colour |> brush) x  y angle length width
 
@@ -81,3 +83,20 @@ type degrees
 
 let toDegrees (rad:float<radians>) =
     pi * rad
+
+let private showForm() =
+    let thread = new System.Threading.Thread (
+                        new System.Threading.ThreadStart( fun () ->
+                                                                //form.Show() |> ignore  
+                                                                Application.Run(form)
+                                                                form.Focus() |> ignore
+                                                                form.BringToFront()
+                        )
+                    )
+    thread.SetApartmentState(System.Threading.ApartmentState.STA)
+    thread.IsBackground <- true
+    thread.Start()
+
+showForm()
+
+//form.ShowDialog()
