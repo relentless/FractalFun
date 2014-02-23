@@ -8,11 +8,12 @@ let startWidth = 3.0
 let startLength = 250.0
 let numBranches = 5
 
-let startColour = (00,40,0)
-let endColour = (0,200,0)
+let asColour x y factor =
+    let centredX = abs ((imageCentre - startWidth/2.0) - x)
+    int ((centredX+y)/factor%255.0)
 
-let numSteps = int (startWidth / -widthModifier)
-let step = colourStep startColour endColour numSteps
+let getColour x y =
+    (asColour x y 0.5,asColour x y 1.0,asColour x y 1.5)
 
 let rec endpoints x y angle length iteration = seq {
     let segLength = length/float numBranches
@@ -29,9 +30,8 @@ let rec branch x y length width colour angle =
         endpoints x y angle length 0
         |> Seq.iteri ( fun i (nextX, nextY) ->
             let stageLengthMultiplier = (1.0/float numBranches*float i)
-            let stageWidthMultiplier = 1.0 //- (0.1/float numBranches*float i)
-            branch nextX nextY (length*lengthMultiplier*stageLengthMultiplier) (width*stageWidthMultiplier+widthModifier) (colour |> next step) (angle+branchAngle)
-            branch nextX nextY (length*lengthMultiplier*stageLengthMultiplier) (width*stageWidthMultiplier+widthModifier) (colour |> next step) (angle-branchAngle)
+            branch nextX nextY (length*lengthMultiplier*stageLengthMultiplier) (width+widthModifier) (getColour x y) (angle+branchAngle)
+            branch nextX nextY (length*lengthMultiplier*stageLengthMultiplier) (width+widthModifier) (getColour x y) (angle-branchAngle)
             )
 
 branch (imageCentre - startWidth/2.0) 70.0 startLength startWidth startColour 0.5
