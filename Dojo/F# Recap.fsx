@@ -6,7 +6,7 @@
 (*** Running the Code ***)
 
 // This is a script.  It's not an executable program.  To run some (or all) of it
-// in the F Sharp Interactive (FSI) window, highlight it and ALT-ENTER
+// in the F Sharp Interactive (FSI) window, highlight it and press ALT-ENTER
 
 // You can also type code straight into FSI.  Just remember to finish the line with ;;.
 
@@ -48,6 +48,11 @@ let rec factorial n =
     else
         1
 
+(*** Printing ***)
+
+// printfn lets you print stuff.  Escape characters like %d are strongly typed.
+printfn "Integer: %d, Float: %f, Anything: %A" 5 9.9 [1;2;3]
+
 (*** Evaluation ***)
 
 // Things are evaluated STRICTLY left-to-right
@@ -59,3 +64,8 @@ let failure = square cube 2 // doesn't even compile - you're trying to pass the 
 // Use parenthesis to define different evaluation order
 let result2 = square (10+2) // 144
 let success = square (cube 2)
+
+(*** Tuples ***)
+
+// Tuples let you store things in groups
+let t = (1,2,"hi mum")

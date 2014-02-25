@@ -8,39 +8,41 @@ open System.Windows.Forms
 open System.Windows
 open System.Threading
 
-let red (r, _, _) = r
-let green (_, g, _) = g
-let blue (_, _, b) = b
-
-let private brush colour = new SolidBrush(Color.FromArgb(colour |> red, colour |> green, colour |> blue))
-    
-let colourStep startColour endColour numSteps = 
-    ((red endColour - red startColour)/numSteps, 
-     (green endColour - green startColour)/numSteps, 
-     (blue endColour - blue startColour)/numSteps)
-
 // Create a form to display the graphics
-let formWidth, formHeight = 1000, 800         
-let form = new Form(Width = formWidth, Height = formHeight)
-let box = new PictureBox(BackColor = Color.White, Dock = DockStyle.Fill)
-let image = new Bitmap(formWidth, formHeight)
-let graphics = Graphics.FromImage(image)
-
-let imageCentre = float formWidth/2.0
+let formWidth, formHeight = 1000.0, 800.0         
+let private form = new Form(Width = int formWidth, Height = int formHeight)
+let private box = new PictureBox(BackColor = Color.White, Dock = DockStyle.Fill)
+let private image = new Bitmap(int formWidth, int formHeight)
+let private graphics = Graphics.FromImage(image)
 
 box.Image <- image
 form.Controls.Add(box) 
 
+let private red (r, _, _) = r
+let private green (_, g, _) = g
+let private blue (_, _, b) = b
+
+[<Measure>]
+type radians
+
+[<Measure>]
+type pi
+
+let private PI = 3.14159265359<pi>
+
+let private brush colour = new SolidBrush(Color.FromArgb(colour |> red, colour |> green, colour |> blue))
+
 /// Tells you where a line starting at x,y with the specified angle in radians will end
-let endpoint x y angle length =
-    x + length * cos angle,
-    y + length * sin angle
+let private endpoint x y (angle:float<radians/pi>) length =
+    let angleRadians = float (PI * angle)
+    x + length * cos angleRadians,
+    y + length * sin angleRadians
 
 let private flip y = (float)formHeight - y
 
 let private drawLine (target : Graphics) (brush : Brush) 
              (x : float) (y : float) 
-             (angle : float) (length : float) (width : float) =
+             (angle : float<radians/pi>) (length : float) (width : float) =
     let x_end, y_end = endpoint x y angle length
     let origin = new PointF((single)x, (single)(y |> flip))
     let destination = new PointF((single)x_end, (single)(y_end |> flip))
@@ -56,38 +58,40 @@ let private drawCircle (target : Graphics) (brush : Brush)
 let private drawRectangle (target : Graphics) (brush : Brush) 
              (x : float) (y : float) 
              (width : int) (height : int) =
-    target.FillRectangle(brush, int x, int y, width, int height)
+    target.FillRectangle(brush, int x, int (flip y) - height, width, height)
 
-/// Draws a line starting at x,y with the specified angle in radians
-let line x y angle length width colour = 
-    drawLine graphics (colour |> brush) x  y angle length width
+/// Works out the individual colour change based on the passed start and end colour
+/// and number of steps
+let colourStep startColour endColour numSteps = 
+    ((red endColour - red startColour)/numSteps, 
+     (green endColour - green startColour)/numSteps, 
+     (blue endColour - blue startColour)/numSteps)
 
-let rect x y width height colour = 
-    drawRectangle graphics (colour |> brush) x y width height
-
-let background startHeight endHeight colour =
-    rect 0.0 startHeight formWidth endHeight colour
-
-let pi = Math.PI
-
+/// Gets the next colour
 let next step colour =
     (red colour + red step, 
      green colour + green step, 
      blue colour + blue step)
 
-[<Measure>]
-type radians
+/// Draws a line starting at x,y with the specified angle in radians.
+/// Returns the coordinates of the end of the line, as a tuple
+let line x y (angle:float<radians/pi>) length width colour = 
+    drawLine graphics (colour |> brush) x  y angle length width
+    endpoint x y angle length
 
-[<Measure>]
-type degrees
+/// Draws a recangle with bottom left corner at x,y
+let rectangle x y width height colour = 
+    drawRectangle graphics (colour |> brush) x y width height
 
-let toDegrees (rad:float<radians>) =
-    pi * rad
+/// Draws a circle centred on x,y
+let circle x y radius colour = 
+    drawCircle graphics (colour |> brush) x y radius
 
-let private showForm() =
+/// Display the form
+/// Can be called before of after the drawing has been done
+let showForm() =
     let thread = new System.Threading.Thread (
                         new System.Threading.ThreadStart( fun () ->
-                                                                //form.Show() |> ignore  
                                                                 Application.Run(form)
                                                                 form.Focus() |> ignore
                                                                 form.BringToFront()
@@ -96,7 +100,3 @@ let private showForm() =
     thread.SetApartmentState(System.Threading.ApartmentState.STA)
     thread.IsBackground <- true
     thread.Start()
-
-showForm()
-
-//form.ShowDialog()
