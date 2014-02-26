@@ -60,19 +60,6 @@ let private drawRectangle (target : Graphics) (brush : Brush)
              (width : int) (height : int) =
     target.FillRectangle(brush, int x, int (flip y) - height, width, height)
 
-/// Works out the individual colour change based on the passed start and end colour
-/// and number of steps
-let colourStep startColour endColour numSteps = 
-    ((red endColour - red startColour)/numSteps, 
-     (green endColour - green startColour)/numSteps, 
-     (blue endColour - blue startColour)/numSteps)
-
-/// Gets the next colour
-let next step colour =
-    (red colour + red step, 
-     green colour + green step, 
-     blue colour + blue step)
-
 /// Draws a line starting at x,y with the specified angle in radians.
 /// Returns the coordinates of the end of the line, as a tuple
 let line x y (angle:float<radians/pi>) length width colour = 
