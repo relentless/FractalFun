@@ -63,6 +63,9 @@ let line x y angle length width colour =
 let rect x y width height colour = 
     drawRectangle graphics (colour |> brush) x y width height
 
+let circle x y radius colour = 
+    drawCircle graphics (colour |> brush) x y radius
+
 let background startHeight endHeight colour =
     rect 0.0 startHeight formWidth endHeight colour
 

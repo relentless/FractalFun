@@ -54,11 +54,13 @@ let private drawCircle (target : Graphics) (brush : Brush)
              (x : float) (y : float) 
              (radius : int) =
     target.FillEllipse(brush, (int x-radius), int (flip y)-radius, radius*2, radius*2)
+    form.Refresh()
 
 let private drawRectangle (target : Graphics) (brush : Brush) 
              (x : float) (y : float) 
              (width : int) (height : int) =
     target.FillRectangle(brush, int x, int (flip y) - height, width, height)
+    form.Refresh()
 
 /// Draws a line starting at x,y with the specified angle in radians.
 /// Returns the coordinates of the end of the line, as a tuple
